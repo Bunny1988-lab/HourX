@@ -1,242 +1,122 @@
-﻿import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState } from 'react';
+import { Clock } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-// Beginner React Component: Signup Page for HourX
-function Signup() {
-  // State variables for form inputs and error message
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-
-  // Navigation hook from React Router
+export default function Signup() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const { signup } = useAuth();
 
-  // Handle form submission
-  const handleSubmit = (event) => {
-    // Prevent default browser form refresh
+  function handleSubmit(event) {
+    // Stop the browser from reloading the page when the form is submitted.
     event.preventDefault();
-    setError("");
 
-    // Validate that all fields are filled
-    if (!name.trim() || !email.trim() || !password || !confirmPassword) {
-      setError("Please fill in all fields.");
-      return;
-    }
-
-    // Validate that password and confirm password match
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setErrorMessage('Passwords do not match.');
       return;
     }
 
-    // Create user object (excluding confirmPassword)
-    const user = {
-      name: name.trim(),
-      email: email.trim(),
-      password: password,
-    };
+    // Delegate account persistence to Auth Context
+    const result = signup({ name, email, password });
 
-    // Store user object as a JSON string in localStorage
-    localStorage.setItem("user", JSON.stringify(user));
+    if (result.success) {
+      navigate('/login');
+      return;
+    }
 
-    // Redirect to the login page after successful signup
-    navigate("/login");
-  };
+    setErrorMessage(result.message || 'Failed to create account.');
+  }
 
   return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        {/* HourX Branding & Heading */}
-        <h1 style={logoStyle}>HourX</h1>
-        <h2 style={headingStyle}>Create Account</h2>
-        <p style={subheadingStyle}>
-          Join HourX to share skills and earn time credits
-        </p>
+    <div className="login-page">
+      <section className="login-intro">
+        <div className="login-brand">
+          <div className="login-brand-icon">
+            <Clock size={22} />
+          </div>
+          <span>HourX</span>
+        </div>
+        <div>
+          <p className="login-eyebrow">Make time work both ways</p>
+          <h1>Share what you know.</h1>
+          <p className="login-description">
+            Join a community where every hour you teach helps you discover something new to learn.
+          </p>
+        </div>
+      </section>
 
-        {/* Display error message if present */}
-        {error && <div style={errorStyle}>{error}</div>}
+      <section className="login-card">
+        <div className="login-card-heading">
+          <p className="login-eyebrow">Get started with HourX</p>
+          <h2>Create your account</h2>
+          <p>Start learning and sharing with your college peers.</p>
+        </div>
 
-        {/* Signup Form */}
-        <form onSubmit={handleSubmit} style={formStyle}>
-          <div style={inputGroupStyle}>
-            <label htmlFor="name" style={labelStyle}>
-              Full Name
-            </label>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label" htmlFor="name">Name</label>
             <input
-              id="name"
+              className="form-input"
               type="text"
-              placeholder="Enter your full name"
+              id="name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              style={inputStyle}
+              onChange={(event) => setName(event.target.value)}
+              required
             />
           </div>
 
-          <div style={inputGroupStyle}>
-            <label htmlFor="email" style={labelStyle}>
-              Email Address
-            </label>
+          <div className="form-group">
+            <label className="form-label" htmlFor="signup-email">Email</label>
             <input
-              id="email"
+              className="form-input"
               type="email"
-              placeholder="Enter your email"
+              id="signup-email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={inputStyle}
+              onChange={(event) => setEmail(event.target.value)}
+              required
             />
           </div>
 
-          <div style={inputGroupStyle}>
-            <label htmlFor="password" style={labelStyle}>
-              Password
-            </label>
+          <div className="form-group">
+            <label className="form-label" htmlFor="signup-password">Password</label>
             <input
-              id="password"
+              className="form-input"
               type="password"
-              placeholder="Create a password"
+              id="signup-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={inputStyle}
+              onChange={(event) => setPassword(event.target.value)}
+              required
             />
           </div>
 
-          <div style={inputGroupStyle}>
-            <label htmlFor="confirmPassword" style={labelStyle}>
-              Confirm Password
-            </label>
+          <div className="form-group">
+            <label className="form-label" htmlFor="confirm-password">Confirm Password</label>
             <input
-              id="confirmPassword"
+              className="form-input"
               type="password"
-              placeholder="Confirm your password"
+              id="confirm-password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              style={inputStyle}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              required
             />
           </div>
 
-          <button type="submit" style={buttonStyle}>
+          {errorMessage && <p className="login-error">{errorMessage}</p>}
+
+          <button className="btn btn-primary btn-full login-submit" type="submit">
             Sign Up
           </button>
         </form>
 
-        {/* Link to Login page */}
-        <div style={footerStyle}>
-          <span>Already have an account? </span>
-          <Link to="/login" style={linkStyle}>
-            Login
-          </Link>
-        </div>
-      </div>
+        <p className="login-signup">
+          Already have an account? <Link to="/login">Log in</Link>
+        </p>
+      </section>
     </div>
   );
 }
-
-// Simple Inline Styles matching Login component design
-const containerStyle = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  minHeight: "80vh",
-  padding: "20px",
-  boxSizing: "border-box",
-};
-
-const cardStyle = {
-  backgroundColor: "#ffffff",
-  border: "1px solid #e5e4e7",
-  borderRadius: "12px",
-  padding: "36px 32px",
-  maxWidth: "420px",
-  width: "100%",
-  boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.08)",
-  textAlign: "center",
-  boxSizing: "border-box",
-};
-
-const logoStyle = {
-  color: "#aa3bff",
-  fontSize: "32px",
-  fontWeight: "bold",
-  margin: "0 0 8px 0",
-};
-
-const headingStyle = {
-  fontSize: "22px",
-  fontWeight: "600",
-  color: "#08060d",
-  margin: "0 0 6px 0",
-};
-
-const subheadingStyle = {
-  fontSize: "14px",
-  color: "#6b6375",
-  marginBottom: "24px",
-};
-
-const formStyle = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "16px",
-  textAlign: "left",
-};
-
-const inputGroupStyle = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "6px",
-};
-
-const labelStyle = {
-  fontSize: "14px",
-  fontWeight: "500",
-  color: "#08060d",
-};
-
-const inputStyle = {
-  padding: "10px 14px",
-  borderRadius: "6px",
-  border: "1px solid #e5e4e7",
-  fontSize: "15px",
-  outline: "none",
-  boxSizing: "border-box",
-  width: "100%",
-};
-
-const buttonStyle = {
-  backgroundColor: "#aa3bff",
-  color: "#ffffff",
-  border: "none",
-  borderRadius: "6px",
-  padding: "12px",
-  fontSize: "16px",
-  fontWeight: "600",
-  cursor: "pointer",
-  marginTop: "8px",
-};
-
-const errorStyle = {
-  backgroundColor: "#fef2f2",
-  color: "#dc2626",
-  border: "1px solid #fecaca",
-  padding: "10px 12px",
-  borderRadius: "6px",
-  fontSize: "14px",
-  marginBottom: "16px",
-  textAlign: "left",
-};
-
-const footerStyle = {
-  marginTop: "24px",
-  fontSize: "14px",
-  color: "#6b6375",
-};
-
-const linkStyle = {
-  color: "#aa3bff",
-  fontWeight: "600",
-  textDecoration: "none",
-};
-
-export default Signup;
