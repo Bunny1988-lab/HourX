@@ -3,9 +3,14 @@
 // React concepts: Components, Props, Conditional rendering based on props.
 
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Clock, TrendingUp } from 'lucide-react';
 
 export default function CreditBalance({ credits, variant = 'badge' }) {
+  // Read credits from Redux store; fallback to prop if explicitly provided
+  const reduxCredits = useSelector((state) => state.wallet.credits);
+  const displayCredits = credits !== undefined ? credits : reduxCredits;
+
   // If variant is "card", render large interactive dashboard card
   if (variant === 'card') {
     return (
@@ -17,7 +22,7 @@ export default function CreditBalance({ credits, variant = 'badge' }) {
           </div>
         </div>
 
-        <div className="balance-amount">{credits} Hours</div>
+        <div className="balance-amount">{displayCredits} Hours</div>
         <p style={{ fontSize: '0.85rem', opacity: 0.85 }}>
           Time Credits earned by teaching skills. 1 Credit = 1 Hour of Learning.
         </p>
@@ -29,7 +34,7 @@ export default function CreditBalance({ credits, variant = 'badge' }) {
   return (
     <div className="credit-balance-badge" title="Your current Time Credits balance">
       <Clock size={16} />
-      <span>{credits} Hours Credit</span>
+      <span>{displayCredits} Hours Credit</span>
     </div>
   );
 }

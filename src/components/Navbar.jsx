@@ -3,12 +3,17 @@
 // React concepts: Components, JSX, Props, React Router Link, useLocation, and useNavigate.
 
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Clock, Compass, PlusCircle, Wallet, User, BookOpen, LogOut } from 'lucide-react';
 import CreditBalance from './CreditBalance';
 import { useAuth } from '../context/AuthContext';
 
-export default function Navbar({ credits }) {
+export default function Navbar({ credits: propCredits }) {
+  // Read credits directly from Redux store, falling back to prop if provided
+  const reduxCredits = useSelector((state) => state.wallet.credits);
+  const credits = propCredits !== undefined ? propCredits : reduxCredits;
+
   const { logout } = useAuth();
   // useLocation gives us the current URL pathname (e.g. "/discover")
   // We use this to highlight the active link in the navigation menu.
