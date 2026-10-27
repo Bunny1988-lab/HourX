@@ -3,10 +3,14 @@
 // React concepts: Controlled Forms, useState, Events (onChange, onSubmit), Conditional Rendering, Props.
 
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { PlusCircle, CheckCircle2, Award, Sparkles, BookOpen } from 'lucide-react';
 import Button from '../components/Button';
+import { addCredits } from '../store/slices/walletSlice';
 
 export default function Teach({ onAddSkill, onEarnCredit }) {
+  const dispatch = useDispatch();
+
   // 1. useState hook for controlled form fields object
   const [formData, setFormData] = useState({
     name: '',
@@ -61,9 +65,19 @@ export default function Teach({ onAddSkill, onEarnCredit }) {
       ]
     };
 
-    // Add new skill to global state & grant +1 Time Credit reward
-    onAddSkill(newSkill);
-    onEarnCredit(1.0);
+    // Add new skill to global state & grant +1 Time Credit reward in Redux
+    if (onAddSkill) {
+      onAddSkill(newSkill);
+    }
+
+    dispatch(addCredits({
+      amount: 1.0,
+      title: `Taught New Skill: ${formData.name}`
+    }));
+
+    if (onEarnCredit) {
+      onEarnCredit(1.0);
+    }
 
     // Reset form fields
     setFormData({

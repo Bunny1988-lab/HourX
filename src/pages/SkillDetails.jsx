@@ -3,12 +3,19 @@
 // React concepts: React Router useParams, useState, Props, Conditional Rendering, Lists & .map(), Events (onClick).
 
 import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
 import { Star, Clock, Calendar, CheckCircle2, ArrowLeft, User, Sparkles, BookOpen } from 'lucide-react';
 import Button from '../components/Button';
 import { mockSkills } from '../data/skills';
+import { deductCredits } from '../store/slices/walletSlice';
 
-export default function SkillDetails({ userCredits = 4.5, onBookSession, skills = mockSkills }) {
+export default function SkillDetails({ userCredits: propUserCredits, onBookSession, skills = mockSkills }) {
+  // Redux hooks for reading credits and dispatching deductCredits action
+  const reduxCredits = useSelector((state) => state.wallet.credits);
+  const userCredits = propUserCredits !== undefined ? propUserCredits : reduxCredits;
+  const dispatch = useDispatch();
+
   // 1. useParams hook extracts dynamic URL parameter from /skill/:id
   const { id } = useParams();
 
@@ -40,8 +47,16 @@ export default function SkillDetails({ userCredits = 4.5, onBookSession, skills 
       return;
     }
 
-    // Call parent handler function passed via props to deduct credits in App state
-    onBookSession(skill.creditsPerHour);
+    // Dispatch Redux action to deduct credits and record transaction
+    dispatch(deductCredits({
+      cost: skill.creditsPerHour,
+      title: `Booked session: ${skill.name}`
+    }));
+
+    // If parent handler was passed, notify it as well for backward compatibility
+    if (onBookSession) {
+      onBookSession(skill.creditsPerHour);
+    }
     
     // Update local state to show booking confirmation UI
     setIsBooked(true);

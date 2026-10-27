@@ -3,11 +3,18 @@
 // React concepts: Components, Props, Lists & .map(), Conditional Rendering.
 
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, Clock, ShieldCheck, History } from 'lucide-react';
 import CreditBalance from '../components/CreditBalance';
 import { walletTransactions } from '../data/sessions';
 
-export default function Wallet({ credits, transactions = walletTransactions }) {
+export default function Wallet({ credits: propCredits, transactions: propTransactions }) {
+  // Read wallet state directly from Redux store, falling back to props if provided
+  const reduxCredits = useSelector((state) => state.wallet.credits);
+  const reduxTransactions = useSelector((state) => state.wallet.transactions);
+
+  const credits = propCredits !== undefined ? propCredits : reduxCredits;
+  const transactions = propTransactions !== undefined ? propTransactions : reduxTransactions;
   return (
     <div className="wallet-page" style={{ maxWidth: '850px', margin: '0 auto' }}>
       <div className="header-banner">

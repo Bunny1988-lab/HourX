@@ -3,6 +3,7 @@
 // React concepts: Components, JSX, Props, map(), useState, React Router useNavigate.
 
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { Compass, PlusCircle, Sparkles, Calendar, ArrowRight, Code } from 'lucide-react';
 import CreditBalance from '../components/CreditBalance';
@@ -12,7 +13,11 @@ import Button from '../components/Button';
 import { mockSkills } from '../data/skills';
 import { upcomingSessions } from '../data/sessions';
 
-export default function Home({ credits }) {
+export default function Home({ credits: propCredits }) {
+  // Read credits from Redux store, falling back to prop if passed
+  const reduxCredits = useSelector((state) => state.wallet.credits);
+  const credits = propCredits !== undefined ? propCredits : reduxCredits;
+
   // useNavigate hook allows programmatic navigation (e.g. redirecting when a button is clicked)
   const navigate = useNavigate();
 
