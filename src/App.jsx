@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 // Layout & Authentication Components
 import Navbar from './components/Navbar';
@@ -22,52 +23,27 @@ import Signup from './pages/Signup';
 
 // Mock Data Initializers
 import { mockSkills } from './data/skills';
-import { walletTransactions } from './data/sessions';
 
 /**
  * Main App Component
- * Wraps the entire application with <BrowserRouter> to enable client-side routing.
+ * Runs inside Redux <Provider> and wraps the application with <AuthProvider> and <BrowserRouter>.
  */
 export default function App() {
-  // Top-level states preserved from the previous phase
-  const [credits, setCredits] = useState(4.5);
-  const [skills, setSkills] = useState(mockSkills);
-  const [transactions, setTransactions] = useState(walletTransactions);
+  // Read wallet state directly from Redux Toolkit store
+  const credits = useSelector((state) => state.wallet.credits);
+  const transactions = useSelector((state) => state.wallet.transactions);
 
-  // Side effect: sync document title with current credit balance
+  // Skills directory state
+  const [skills, setSkills] = useState(mockSkills);
+
+  // Side effect: sync document title with current credit balance from Redux
   useEffect(() => {
     document.title = `HourX (${credits} Hours Credit) - Skill Exchange`;
   }, [credits]);
 
-  // Handler: deduct credits when a session is booked
-  function handleBookSession(cost) {
-    setCredits((prevCredits) => Math.max(0, prevCredits - cost));
-    const newTx = {
-      id: `tx_${Date.now()}`,
-      type: 'SPENT',
-      amount: `-${cost} Hour`,
-      title: 'Booked Skill Session',
-      date: 'Just Now'
-    };
-    setTransactions((prevTx) => [newTx, ...prevTx]);
-  }
-
   // Handler: add a new skill offered by user
   function handleAddSkill(newSkill) {
     setSkills((prevSkills) => [newSkill, ...prevSkills]);
-  }
-
-  // Handler: reward user with credits for teaching a skill
-  function handleEarnCredit(amount) {
-    setCredits((prevCredits) => prevCredits + amount);
-    const newTx = {
-      id: `tx_${Date.now()}`,
-      type: 'EARNED',
-      amount: `+${amount} Hour`,
-      title: 'Taught New Skill Class',
-      date: 'Just Now'
-    };
-    setTransactions((prevTx) => [newTx, ...prevTx]);
   }
 
   return (
@@ -78,9 +54,7 @@ export default function App() {
             credits={credits}
             skills={skills}
             transactions={transactions}
-            onBookSession={handleBookSession}
             onAddSkill={handleAddSkill}
-            onEarnCredit={handleEarnCredit}
           />
         </div>
       </BrowserRouter>
@@ -93,14 +67,14 @@ export default function App() {
  * Runs inside <BrowserRouter> context, giving it access to router hooks like useLocation.
  * Configures the public and protected routes for the application.
  */
-function AppContent({ credits, skills, transactions, onBookSession, onAddSkill, onEarnCredit }) {
+function AppContent({ credits, skills, transactions, onAddSkill }) {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
 
   return (
     <>
       {/* Show navigation bar only on protected/application pages, not on login/signup */}
-      {!isAuthPage && <Navbar credits={credits} />}
+      {!isAuthPage && <Navbar />}
 
       <main className="main-content">
         <Routes>
@@ -119,7 +93,7 @@ function AppContent({ credits, skills, transactions, onBookSession, onAddSkill, 
             path="/"
             element={
               <ProtectedRoute>
-                <Home credits={credits} />
+                <Home />
               </ProtectedRoute>
             }
           />
@@ -140,8 +114,6 @@ function AppContent({ credits, skills, transactions, onBookSession, onAddSkill, 
             element={
               <ProtectedRoute>
                 <SkillDetails
-                  userCredits={credits}
-                  onBookSession={onBookSession}
                   skills={skills}
                 />
               </ProtectedRoute>
@@ -155,7 +127,6 @@ function AppContent({ credits, skills, transactions, onBookSession, onAddSkill, 
               <ProtectedRoute>
                 <Teach
                   onAddSkill={onAddSkill}
-                  onEarnCredit={onEarnCredit}
                 />
               </ProtectedRoute>
             }
@@ -166,10 +137,7 @@ function AppContent({ credits, skills, transactions, onBookSession, onAddSkill, 
             path="/wallet"
             element={
               <ProtectedRoute>
-                <Wallet
-                  credits={credits}
-                  transactions={transactions}
-                />
+                <Wallet />
               </ProtectedRoute>
             }
           />
