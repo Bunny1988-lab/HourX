@@ -6,7 +6,7 @@ import React from 'react';
 import { Star, Award, BookOpen, Clock, MapPin } from 'lucide-react';
 
 export default function UserCard({ user }) {
-  const { name, title, avatar, bio, location, hoursTaught, hoursLearned, rating } = user;
+  const { name, email, title, avatar, bio, location, hoursTaught, hoursLearned, rating } = user;
 
   return (
     <div className="user-card">
@@ -19,6 +19,12 @@ export default function UserCard({ user }) {
       <div style={{ flex: 1 }}>
         <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '2px' }}>{name}</h2>
         <p style={{ color: '#4f46e5', fontWeight: 600, fontSize: '0.9rem', marginBottom: '8px' }}>{title}</p>
+
+        {email && (
+          <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '8px' }}>
+            Account email: {email}
+          </p>
+        )}
         
         <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '14px' }}>{bio}</p>
 

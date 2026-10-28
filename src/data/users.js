@@ -1,3 +1,6 @@
+// src/data/users.js
+// Stores mock user details for the logged-in student profile.
+
 export const currentUser = {
   id: "usr_101",
   name: "Aarav Sharma",

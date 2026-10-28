@@ -1,10 +1,15 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+// src/main.jsx
+// What this file does: Entry point of our React application that mounts the App component into the HTML DOM root element.
+// React concepts: ReactDOM.createRoot, React.StrictMode, rendering root JSX.
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
+import './index.css';
+
+// Create React Root and render top-level App component
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
     <App />
-  </StrictMode>,
-)
+  </React.StrictMode>,
+);

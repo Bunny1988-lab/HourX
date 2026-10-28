@@ -1,21 +1,23 @@
-﻿import React from "react";
-import { Navigate } from "react-router-dom";
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
 
-// Beginner React Component: ProtectedRoute
-// Restricts access to pages so only logged-in users can view them.
-// If the user is logged in (isLoggedIn === "true" in localStorage), render the child components.
-// Otherwise, redirect the user to the login page ("/login").
-function ProtectedRoute({ children }) {
-  // Check if the user is authenticated in localStorage
-  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+/**
+ * ProtectedRoute component:
+ * Guards private routes from unauthenticated access.
+ * Currently checks localStorage for `isLoggedIn === 'true'`.
+ * (Note: Teammate 2 will migrate this authentication check to Context API).
+ * 
+ * If the user is NOT authenticated:
+ *   Redirects them to the /login page using <Navigate to="/login" replace />
+ * If the user IS authenticated:
+ *   Renders the requested child component or child routes (<Outlet />).
+ */
+export default function ProtectedRoute({ children }) {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
-  // If not logged in, redirect to the login page using React Router Navigate
   if (!isLoggedIn) {
     return <Navigate to="/login" replace />;
   }
 
-  // If logged in, render the protected child components
-  return children;
-}
-
-export default ProtectedRoute;
+  return children ? children : <Outlet />;
+}

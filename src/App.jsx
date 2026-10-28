@@ -1,122 +1,190 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+// src/App.jsx
+// What this file does: Top-level application component configuring React Router routing and page structure.
+// React concepts: BrowserRouter, Routes, Route, Link, useNavigate, Navigate, ProtectedRoute, useState, useEffect.
 
-function App() {
-  const [count, setCount] = useState(0)
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+
+// Layout & Authentication Components
+import Navbar from './components/Navbar';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+
+// Page Views
+import Home from './pages/Home';
+import Discover from './pages/Discover';
+import SkillDetails from './pages/SkillDetails';
+import Teach from './pages/Teach';
+import Wallet from './pages/Wallet';
+import Profile from './pages/Profile';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+
+// Mock Data Initializers
+import { mockSkills } from './data/skills';
+import { walletTransactions } from './data/sessions';
+
+/**
+ * Main App Component
+ * Wraps the entire application with <BrowserRouter> to enable client-side routing.
+ */
+export default function App() {
+  // Top-level states preserved from the previous phase
+  const [credits, setCredits] = useState(4.5);
+  const [skills, setSkills] = useState(mockSkills);
+  const [transactions, setTransactions] = useState(walletTransactions);
+
+  // Side effect: sync document title with current credit balance
+  useEffect(() => {
+    document.title = `HourX (${credits} Hours Credit) - Skill Exchange`;
+  }, [credits]);
+
+  // Handler: deduct credits when a session is booked
+  function handleBookSession(cost) {
+    setCredits((prevCredits) => Math.max(0, prevCredits - cost));
+    const newTx = {
+      id: `tx_${Date.now()}`,
+      type: 'SPENT',
+      amount: `-${cost} Hour`,
+      title: 'Booked Skill Session',
+      date: 'Just Now'
+    };
+    setTransactions((prevTx) => [newTx, ...prevTx]);
+  }
+
+  // Handler: add a new skill offered by user
+  function handleAddSkill(newSkill) {
+    setSkills((prevSkills) => [newSkill, ...prevSkills]);
+  }
+
+  // Handler: reward user with credits for teaching a skill
+  function handleEarnCredit(amount) {
+    setCredits((prevCredits) => prevCredits + amount);
+    const newTx = {
+      id: `tx_${Date.now()}`,
+      type: 'EARNED',
+      amount: `+${amount} Hour`,
+      title: 'Taught New Skill Class',
+      date: 'Just Now'
+    };
+    setTransactions((prevTx) => [newTx, ...prevTx]);
+  }
+
+  return (
+    <BrowserRouter>
+      <div className="app-container">
+        <AppContent
+          credits={credits}
+          skills={skills}
+          transactions={transactions}
+          onBookSession={handleBookSession}
+          onAddSkill={handleAddSkill}
+          onEarnCredit={handleEarnCredit}
+        />
+      </div>
+    </BrowserRouter>
+  );
+}
+
+/**
+ * AppContent Component:
+ * Runs inside <BrowserRouter> context, giving it access to router hooks like useLocation.
+ * Configures the public and protected routes for the application.
+ */
+function AppContent({ credits, skills, transactions, onBookSession, onAddSkill, onEarnCredit }) {
+  const location = useLocation();
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      {/* Show navigation bar only on protected/application pages, not on login/signup */}
+      {!isAuthPage && <Navbar credits={credits} />}
 
-      <div className="ticks"></div>
+      <main className="main-content">
+        <Routes>
+          {/* =========================================
+              PUBLIC ROUTES (Accessible without auth)
+             ========================================= */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          {/* =========================================
+              PROTECTED APPLICATION ROUTES
+              (Guarded by ProtectedRoute component)
+             ========================================= */}
+          {/* 1. Home Dashboard */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Home credits={credits} />
+              </ProtectedRoute>
+            }
+          />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+          {/* 2. Discover Skills Directory */}
+          <Route
+            path="/discover"
+            element={
+              <ProtectedRoute>
+                <Discover skills={skills} />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 3. Dynamic Skill Details Route (:id parameter) */}
+          <Route
+            path="/skill/:id"
+            element={
+              <ProtectedRoute>
+                <SkillDetails
+                  userCredits={credits}
+                  onBookSession={onBookSession}
+                  skills={skills}
+                />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 4. Teach a Skill Form */}
+          <Route
+            path="/teach"
+            element={
+              <ProtectedRoute>
+                <Teach
+                  onAddSkill={onAddSkill}
+                  onEarnCredit={onEarnCredit}
+                />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 5. Time Credits Wallet */}
+          <Route
+            path="/wallet"
+            element={
+              <ProtectedRoute>
+                <Wallet
+                  credits={credits}
+                  transactions={transactions}
+                />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 6. User Profile */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Fallback wildcard route: redirects unknown paths to home (or login if unauthenticated) */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
     </>
-  )
+  );
 }
-
-export default App

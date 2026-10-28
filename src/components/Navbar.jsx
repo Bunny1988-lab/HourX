@@ -1,19 +1,27 @@
 // src/components/Navbar.jsx
-// What this file does: Renders the top navigation header with logo, page links, and credit balance.
-// React concepts: Components, JSX, Props, React Router Link & useLocation.
+// What this file does: Renders the top navigation header with logo, page links, credit balance, and logout.
+// React concepts: Components, JSX, Props, React Router Link, useLocation, and useNavigate.
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Clock, Compass, PlusCircle, Wallet, User, BookOpen } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Clock, Compass, PlusCircle, Wallet, User, BookOpen, LogOut } from 'lucide-react';
 import CreditBalance from './CreditBalance';
 
 export default function Navbar({ credits }) {
   // useLocation gives us the current URL pathname (e.g. "/discover")
   // We use this to highlight the active link in the navigation menu.
   const location = useLocation();
+  // useNavigate hook allows programmatic navigation (e.g. redirecting after logout)
+  const navigate = useNavigate();
 
   // Helper function to check if a route is currently active
   const isActive = (path) => location.pathname === path;
+
+  // Logout handler: Clears authentication status and redirects to /login
+  function handleLogout() {
+    localStorage.removeItem('isLoggedIn');
+    navigate('/login');
+  }
 
   return (
     <nav className="navbar">
@@ -69,9 +77,19 @@ export default function Navbar({ credits }) {
           </Link>
         </div>
 
-        {/* Right side: Reusable CreditBalance Badge Component */}
-        <div className="nav-right">
+        {/* Right side: Reusable CreditBalance Badge & Logout Button */}
+        <div className="nav-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <CreditBalance credits={credits} variant="badge" />
+          <button 
+            type="button"
+            onClick={handleLogout} 
+            className="btn btn-outline" 
+            style={{ padding: '6px 12px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+            title="Log out of HourX"
+          >
+            <LogOut size={16} />
+            <span>Logout</span>
+          </button>
         </div>
       </div>
     </nav>

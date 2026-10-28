@@ -7,7 +7,7 @@ import { Search, SlidersHorizontal, BookOpen, AlertCircle } from 'lucide-react';
 import SkillCard from '../components/SkillCard';
 import { mockSkills } from '../data/skills';
 
-export default function Discover() {
+export default function Discover({ skills = mockSkills }) {
   // 1. useState Hook for search query input
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -23,8 +23,9 @@ export default function Discover() {
   }
 
   // 4. JavaScript Array Filtering logic
-  // We filter mockSkills dynamically based on searchTerm and selectedCategory state
-  const filteredSkills = mockSkills.filter((skill) => {
+  // We filter skills dynamically based on searchTerm and selectedCategory state
+  const skillsList = skills || mockSkills;
+  const filteredSkills = skillsList.filter((skill) => {
     // Check if skill name or teacher matches the search input (case insensitive)
     const matchesSearch = 
       skill.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

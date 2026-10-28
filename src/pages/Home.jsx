@@ -1,432 +1,120 @@
-﻿import React from "react";
-import { useNavigate } from "react-router-dom";
+// src/pages/Home.jsx
+// What this file does: Displays the student dashboard with credit balance, quick navigation buttons, recommended skills, and upcoming sessions.
+// React concepts: Components, JSX, Props, map(), useState, React Router useNavigate.
 
-// Beginner React Component: Home Dashboard for HourX
-function Home() {
+import React from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Compass, PlusCircle, Sparkles, Calendar, ArrowRight, Code } from 'lucide-react';
+import CreditBalance from '../components/CreditBalance';
+import SkillCard from '../components/SkillCard';
+import SessionCard from '../components/SessionCard';
+import Button from '../components/Button';
+import { mockSkills } from '../data/skills';
+import { upcomingSessions } from '../data/sessions';
+
+export default function Home({ credits }) {
+  // useNavigate hook allows programmatic navigation (e.g. redirecting when a button is clicked)
   const navigate = useNavigate();
 
-  // Safely retrieve user data from localStorage
-  let userName = "";
-  try {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      userName = user.name || "";
-    }
-  } catch (err) {
-    // If parsing fails, fall back to empty name without crashing
-    userName = "";
-  }
-
-  // Local sample data for Recommended Skills
-  const recommendedSkills = [
-    {
-      id: 1,
-      title: "React & Modern Web Development",
-      category: "Programming",
-      instructor: "Alex Chen",
-      credits: "1 Credit / hr",
-      rating: "4.9 ★",
-    },
-    {
-      id: 2,
-      title: "Spanish Conversation Practice",
-      category: "Languages",
-      instructor: "Maria Garcia",
-      credits: "1 Credit / hr",
-      rating: "4.8 ★",
-    },
-    {
-      id: 3,
-      title: "Digital Photography Basics",
-      category: "Creative Arts",
-      instructor: "David Miller",
-      credits: "1 Credit / hr",
-      rating: "5.0 ★",
-    },
-  ];
-
-  // Local sample data for Upcoming Sessions
-  const upcomingSessions = [
-    {
-      id: 101,
-      topic: "Intro to UI/UX Design",
-      partner: "Sarah Johnson",
-      date: "Tomorrow, 3:00 PM",
-      type: "Learning",
-    },
-    {
-      id: 102,
-      topic: "Basic Guitar Chords",
-      partner: "James Wilson",
-      date: "Friday, 5:00 PM",
-      type: "Teaching",
-    },
-  ];
-
-  // Navigation handlers
-  const handleExplore = () => {
-    navigate("/discover");
-  };
-
-  const handleTeach = () => {
-    navigate("/teach");
-  };
+  // Pick the top 3 recommended skills from our mock data array
+  const recommendedSkills = mockSkills.slice(0, 3);
 
   return (
-    <div style={containerStyle}>
-      <div style={contentWrapperStyle}>
-        {/* 1. Welcome Section */}
-        <div style={heroHeaderStyle}>
-          <div>
-            <h1 style={titleStyle}>
-              {userName ? `Welcome back, ${userName}!` : "Welcome back!"}
-            </h1>
-            <p style={subtitleStyle}>
-              Continue learning, teaching, and connecting with the HourX community.
-            </p>
-          </div>
+    <div className="home-page">
+      {/* Top Greeting Banner */}
+      <div className="header-banner">
+        <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '4px' }}>
+          Good afternoon 👋
+        </h1>
+        <p style={{ color: '#64748b', fontSize: '1.05rem' }}>
+          Welcome back to HourX. Exchange skills and learn from your college peers.
+        </p>
+      </div>
 
-          {/* Quick Action Buttons */}
-          <div style={actionButtonsGroupStyle}>
-            <button onClick={handleExplore} style={primaryButtonStyle}>
-              Explore Skills
-            </button>
-            <button onClick={handleTeach} style={secondaryButtonStyle}>
-              Teach a Skill
-            </button>
-          </div>
-        </div>
+      {/* Credit Balance & Quick Action Hero Section */}
+      <div className="grid-2" style={{ marginBottom: '40px' }}>
+        {/* Credit Balance Card */}
+        <CreditBalance credits={credits} variant="card" />
 
-        {/* 2. Time Credit Balance Card */}
-        <div style={balanceCardStyle}>
-          <div style={balanceInfoStyle}>
-            <span style={balanceLabelStyle}>TIME CREDIT BALANCE</span>
-            <div style={balanceValueStyle}>
-              <span style={balanceNumberStyle}>5</span>
-              <span style={balanceUnitStyle}>Time Credits</span>
-            </div>
-            <p style={balanceDescStyle}>
-              Earn credits by teaching skills to others, or spend them to learn something new!
-            </p>
-          </div>
-          <div style={badgeIconStyle}>⏱️</div>
-        </div>
+        {/* Quick Action Box */}
+        <div style={{ 
+          backgroundColor: '#ffffff', 
+          borderRadius: '16px', 
+          padding: '24px', 
+          border: '1px solid #e2e8f0',
+          display: 'flex',
+          flexDirection: 'column',
+          justify: 'center',
+          gap: '16px'
+        }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>
+            What would you like to do today?
+          </h3>
+          <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>
+            Spend your credits to learn a new skill, or host a class to earn more credits.
+          </p>
 
-        {/* 3. Recommended Skills Section */}
-        <div style={sectionStyle}>
-          <div style={sectionHeaderStyle}>
-            <h2 style={sectionTitleStyle}>Recommended Skills</h2>
-            <button onClick={handleExplore} style={textLinkButtonStyle}>
-              View All →
-            </button>
-          </div>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <Button onClick={() => navigate('/discover')}>
+              <Compass size={18} /> Learn Something
+            </Button>
 
-          <div style={gridStyle}>
-            {recommendedSkills.map((skill) => (
-              <div key={skill.id} style={cardStyle}>
-                <span style={categoryTagStyle}>{skill.category}</span>
-                <h3 style={cardTitleStyle}>{skill.title}</h3>
-                <p style={instructorStyle}>Instructor: {skill.instructor}</p>
-                <div style={cardFooterStyle}>
-                  <span style={creditsBadgeStyle}>{skill.credits}</span>
-                  <span style={ratingStyle}>{skill.rating}</span>
-                </div>
-              </div>
-            ))}
+            <Button variant="secondary" onClick={() => navigate('/teach')}>
+              <PlusCircle size={18} /> Teach a Skill
+            </Button>
           </div>
         </div>
+      </div>
 
-        {/* 4. Upcoming Sessions Section */}
-        <div style={sectionStyle}>
-          <div style={sectionHeaderStyle}>
-            <h2 style={sectionTitleStyle}>Upcoming Sessions</h2>
-          </div>
+      {/* Upcoming Session Section */}
+      <div style={{ marginBottom: '40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h2 className="section-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Calendar color="#4f46e5" size={22} /> Upcoming Sessions
+          </h2>
+        </div>
 
-          <div style={sessionListStyle}>
+        {/* Dynamic rendering of upcoming sessions list */}
+        {upcomingSessions.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {upcomingSessions.map((session) => (
-              <div key={session.id} style={sessionCardStyle}>
-                <div>
-                  <h3 style={sessionTopicStyle}>{session.topic}</h3>
-                  <p style={sessionDetailStyle}>
-                    With <strong>{session.partner}</strong> • {session.date}
-                  </p>
-                </div>
-                <span
-                  style={
-                    session.type === "Learning"
-                      ? learningTagStyle
-                      : teachingTagStyle
-                  }
-                >
-                  {session.type}
-                </span>
-              </div>
+              <SessionCard key={session.id} session={session} />
             ))}
           </div>
+        ) : (
+          <p style={{ color: '#64748b' }}>No upcoming sessions scheduled yet.</p>
+        )}
+      </div>
+
+      {/* Recommended Skills Section */}
+      <div style={{ marginBottom: '40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h2 className="section-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Sparkles color="#d97706" size={22} /> Recommended Skills
+          </h2>
+
+          <Link to="/discover" style={{ color: '#4f46e5', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            View All <ArrowRight size={16} />
+          </Link>
         </div>
+
+        {/* Render grid of SkillCard components using .map() */}
+        <div className="grid-3">
+          {recommendedSkills.map((skill) => (
+            <SkillCard key={skill.id} skill={skill} />
+          ))}
+        </div>
+      </div>
+
+      {/* Educational Virtual DOM Explanation Box for the College Project */}
+      <div className="virtual-dom-footer">
+        <h4><Code size={18} /> React Learning Concept: Virtual DOM & State Updates</h4>
+        <p>
+          When you click <strong>"Learn Something"</strong>, <code>navigate('/discover')</code> changes the current route state. 
+          React creates a lightweight <strong>Virtual DOM</strong> tree representing the new view, compares (diffs) it with the previous tree, 
+          and efficiently updates only the changed DOM elements without reloading the page!
+        </p>
       </div>
     </div>
   );
 }
-
-// Inline Styles for clean, modern dashboard layout
-const containerStyle = {
-  minHeight: "100vh",
-  backgroundColor: "#f8fafc",
-  padding: "32px 20px",
-  boxSizing: "border-box",
-};
-
-const contentWrapperStyle = {
-  maxWidth: "1000px",
-  margin: "0 auto",
-  display: "flex",
-  flexDirection: "column",
-  gap: "32px",
-};
-
-const heroHeaderStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  flexWrap: "wrap",
-  gap: "20px",
-  backgroundColor: "#ffffff",
-  padding: "28px 32px",
-  borderRadius: "16px",
-  border: "1px solid #e2e8f0",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.03)",
-};
-
-const titleStyle = {
-  fontSize: "28px",
-  fontWeight: "800",
-  color: "#0f172a",
-  margin: "0 0 6px 0",
-};
-
-const subtitleStyle = {
-  fontSize: "15px",
-  color: "#64748b",
-  margin: 0,
-};
-
-const actionButtonsGroupStyle = {
-  display: "flex",
-  gap: "12px",
-  flexWrap: "wrap",
-};
-
-const primaryButtonStyle = {
-  backgroundColor: "#aa3bff",
-  color: "#ffffff",
-  border: "none",
-  borderRadius: "8px",
-  padding: "10px 20px",
-  fontSize: "14px",
-  fontWeight: "600",
-  cursor: "pointer",
-};
-
-const secondaryButtonStyle = {
-  backgroundColor: "#f1f5f9",
-  color: "#334155",
-  border: "1px solid #cbd5e1",
-  borderRadius: "8px",
-  padding: "10px 20px",
-  fontSize: "14px",
-  fontWeight: "600",
-  cursor: "pointer",
-};
-
-const balanceCardStyle = {
-  background: "linear-gradient(135deg, #aa3bff 0%, #7e22ce 100%)",
-  color: "#ffffff",
-  padding: "28px 32px",
-  borderRadius: "16px",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  boxShadow: "0 10px 20px -5px rgba(170, 59, 255, 0.3)",
-};
-
-const balanceInfoStyle = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "6px",
-};
-
-const balanceLabelStyle = {
-  fontSize: "12px",
-  fontWeight: "700",
-  letterSpacing: "1px",
-  opacity: 0.9,
-};
-
-const balanceValueStyle = {
-  display: "flex",
-  alignItems: "baseline",
-  gap: "10px",
-};
-
-const balanceNumberStyle = {
-  fontSize: "42px",
-  fontWeight: "800",
-};
-
-const balanceUnitStyle = {
-  fontSize: "20px",
-  fontWeight: "600",
-  opacity: 0.95,
-};
-
-const balanceDescStyle = {
-  fontSize: "14px",
-  opacity: 0.9,
-  margin: "4px 0 0 0",
-};
-
-const badgeIconStyle = {
-  fontSize: "56px",
-  opacity: 0.85,
-};
-
-const sectionStyle = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "16px",
-};
-
-const sectionHeaderStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
-
-const sectionTitleStyle = {
-  fontSize: "20px",
-  fontWeight: "700",
-  color: "#0f172a",
-  margin: 0,
-};
-
-const textLinkButtonStyle = {
-  background: "none",
-  border: "none",
-  color: "#aa3bff",
-  fontSize: "14px",
-  fontWeight: "600",
-  cursor: "pointer",
-};
-
-const gridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-  gap: "18px",
-};
-
-const cardStyle = {
-  backgroundColor: "#ffffff",
-  border: "1px solid #e2e8f0",
-  borderRadius: "12px",
-  padding: "20px",
-  display: "flex",
-  flexDirection: "column",
-  gap: "10px",
-  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.02)",
-};
-
-const categoryTagStyle = {
-  fontSize: "12px",
-  fontWeight: "600",
-  color: "#aa3bff",
-  backgroundColor: "rgba(170, 59, 255, 0.1)",
-  padding: "4px 10px",
-  borderRadius: "20px",
-  width: "fit-content",
-};
-
-const cardTitleStyle = {
-  fontSize: "17px",
-  fontWeight: "700",
-  color: "#0f172a",
-  margin: 0,
-};
-
-const instructorStyle = {
-  fontSize: "14px",
-  color: "#64748b",
-  margin: 0,
-};
-
-const cardFooterStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginTop: "6px",
-  paddingTop: "10px",
-  borderTop: "1px solid #f1f5f9",
-};
-
-const creditsBadgeStyle = {
-  fontSize: "13px",
-  fontWeight: "600",
-  color: "#334155",
-};
-
-const ratingStyle = {
-  fontSize: "13px",
-  fontWeight: "700",
-  color: "#eab308",
-};
-
-const sessionListStyle = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "12px",
-};
-
-const sessionCardStyle = {
-  backgroundColor: "#ffffff",
-  border: "1px solid #e2e8f0",
-  borderRadius: "12px",
-  padding: "18px 24px",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.02)",
-};
-
-const sessionTopicStyle = {
-  fontSize: "16px",
-  fontWeight: "700",
-  color: "#0f172a",
-  margin: "0 0 4px 0",
-};
-
-const sessionDetailStyle = {
-  fontSize: "14px",
-  color: "#64748b",
-  margin: 0,
-};
-
-const learningTagStyle = {
-  fontSize: "12px",
-  fontWeight: "700",
-  color: "#2563eb",
-  backgroundColor: "#eff6ff",
-  padding: "6px 14px",
-  borderRadius: "20px",
-};
-
-const teachingTagStyle = {
-  fontSize: "12px",
-  fontWeight: "700",
-  color: "#16a34a",
-  backgroundColor: "#f0fdf4",
-  padding: "6px 14px",
-  borderRadius: "20px",
-};
-
-export default Home;
